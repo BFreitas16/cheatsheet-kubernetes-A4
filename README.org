@@ -1,6 +1,38 @@
-* Kubectl Kubernetes CheatSheet                                   :Cloud:
+#+TITLE: Kubectl Kubernetes CheatSheet
 
-** Common Commands
+* Contents
+:PROPERTIES:
+:TOC:      :include siblings :ignore this :depth 2 :force depth
+:END:
+:CONTENTS:
+- [[#common-commands][Common Commands]]
+- [[#check-performance][Check Performance]]
+- [[#resources-deletion][Resources Deletion]]
+- [[#log-conf-files][Log & Conf Files]]
+- [[#label-annotation][Label & Annotation]]
+- [[#deployment-scale][Deployment & Scale]]
+- [[#quota-limits-resource][Quota & Limits & Resource]]
+- [[#services][Service]]
+- [[#secrets][Secrets]]
+- [[#statefulset][StatefulSet]]
+- [[#volumes-volume-claims][Volumes & Volume Claims]]
+- [[#events-metrics][Events & Metrics]]
+- [[#node-maintenance][Node Maintenance]]
+- [[#namespace-security][Namespace & Security]]
+- [[#network][Network]]
+- [[#patch][Patch]]
+- [[#extensions][Extensions]]
+- [[#components-services][Components & Services]]
+  - [[#services-on-master-nodes][Services on Master Nodes]]
+  - [[#services-on-worker-nodes][Services on Worker Nodes]]
+  - [[#addons-pods-and-services-that-implement-cluster-features][Addons: pods and services that implement cluster features]]
+  - [[#tools][Tools]]
+- [[#debug-init-containers][Debug Init Containers]]
+- [[#more-resources][More Resources]]
+  - [[#useful-links][Useful Links]]
+:END:
+
+* Common Commands
 
 | Name                                 | Command                                                                                   |
 |--------------------------------------+-------------------------------------------------------------------------------------------|
@@ -34,7 +66,7 @@
 | Get pods sorted by restart count     | kubectl get pods --sort-by='.status.containerStatuses[0].restartCount'                    |
 | List pods and images                 | kubectl get pods -o='custom-columns=PODS:.metadata.name,Images:.spec.containers[*].image' |
 
-** Check Performance
+* Check Performance
 
 | Name                                         | Command                                              |
 |----------------------------------------------+------------------------------------------------------|
@@ -43,7 +75,7 @@
 | Get resource usage for a given pod           | =kubectl top <podname> --containers=                 |
 | List resource utilization for all containers | =kubectl top pod --all-namespaces --containers=true= |
 
-** Resources Deletion
+* Resources Deletion
 
 | Name                                    | Command                                                  |
 |-----------------------------------------+----------------------------------------------------------|
@@ -56,7 +88,7 @@
 | Delete persist volumes by labels        | =kubectl delete pvc -l app=wordpress=                    |
 | Delete state fulset only (not pods)     | =kubectl delete sts/<stateful_set_name> --cascade=false= |
 
-** Log & Conf Files
+* Log & Conf Files
 
 | Name                      | Comment                                                                   |
 |---------------------------+---------------------------------------------------------------------------|
@@ -75,7 +107,7 @@
 | Env                       | =/etc/systemd/system/kubelet.service.d/10-kubeadm.conf=                   |
 | Env                       | export KUBECONFIG=/etc/kubernetes/admin.conf                              |
 
-** Pod
+* Pod
 
 | Name                         | Command                                                                                   |
 |------------------------------+-------------------------------------------------------------------------------------------|
@@ -94,7 +126,7 @@
 | List pods and images         | kubectl get pods -o='custom-columns=PODS:.metadata.name,Images:.spec.containers[*].image' |
 | List pods and containers     | -o='custom-columns=PODS:.metadata.name,CONTAINERS:.spec.containers[*].name'               |
 
-** Label & Annotation
+* Label & Annotation
 
 | Name                             | Command                                                           |
 |----------------------------------+-------------------------------------------------------------------|
@@ -103,7 +135,7 @@
 | Remove label                     | =kubectl label pods dummy-input owner-=                           |
 | Manually add annotation to a pod | =kubectl annotate pods dummy-input my-url=https://dennyzhang.com= |
 
-** Deployment & Scale
+* Deployment & Scale
 
 | Name                         | Command                                                                  |
 |------------------------------+--------------------------------------------------------------------------|
@@ -117,7 +149,7 @@
 | Rollback to previous version | =kubectl rollout undo deployment/nginx-deployment=                       |
 | Reference     | [[https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#pausing-and-resuming-a-deployment][Link: Pausing and Resuming a Deployment]] |
 
-** Quota & Limits & Resource
+* Quota & Limits & Resource
 
 | Name                          | Command                                                                 |
 |-------------------------------+-------------------------------------------------------------------------|
@@ -126,7 +158,7 @@
 | Customize resource definition | =kubectl set resources deployment nginx -c=nginx --limits=cpu=200m=     |
 | Customize resource definition | =kubectl set resources deployment nginx -c=nginx --limits=memory=512Mi= |
 
-** Service
+* Service
 
 | Name                            | Command                                                                           |
 |---------------------------------+-----------------------------------------------------------------------------------|
@@ -138,7 +170,7 @@
 | Expose deployment as lb service | =kubectl expose deployment/my-app --type=LoadBalancer --name=my-service=          |
 | Expose service as lb service    | =kubectl expose service/wordpress-1-svc --type=LoadBalancer --name=ns1=           |
 
-** Secrets
+* Secrets
 
 | Name                             | Command                                                                 |
 |----------------------------------+-------------------------------------------------------------------------|
@@ -149,7 +181,7 @@
 | Create secret from cfg file      | kubectl create secret generic db-user-pass --from-file=./username.txt   |
 | Reference                        | [[https://kubernetes.io/docs/concepts/configuration/secret/][Link: Secrets]]                          |
 
-** StatefulSet
+* StatefulSet
 
 | Name                               | Command                                                  |
 |------------------------------------+----------------------------------------------------------|
@@ -157,7 +189,7 @@
 | Delete statefulset only (not pods) | =kubectl delete sts/<stateful_set_name> --cascade=false= |
 | Scale statefulset                  | =kubectl scale sts/<stateful_set_name> --replicas=5=     |
 
-** Volumes & Volume Claims
+* Volumes & Volume Claims
 
 | Name                      | Command                                                      |
 |---------------------------+--------------------------------------------------------------|
@@ -167,14 +199,14 @@
 | Copy local file to pod    | =kubectl cp /tmp/my <some-namespace>/<some-pod>:/tmp/server= |
 | Copy pod file to local    | =kubectl cp <some-namespace>/<some-pod>:/tmp/server /tmp/my= |
 
-** Events & Metrics
+* Events & Metrics
 
 | Name                            | Command                                                    |
 |---------------------------------+------------------------------------------------------------|
 | View all events                 | =kubectl get events --all-namespaces=                      |
 | List Events sorted by timestamp | kubectl get events --sort-by=.metadata.creationTimestamp   |
 
-** Node Maintenance
+* Node Maintenance
 
 | Name                                      | Command                       |
 |-------------------------------------------+-------------------------------|
@@ -182,7 +214,7 @@
 | Mark node as schedulable                  | =kubectl uncordon $NODE_NAME= |
 | Drain node in preparation for maintenance | =kubectl drain $NODE_NAME=    |
 
-** Namespace & Security
+* Namespace & Security
 
 | Name                          | Command                                                                                             |
 |-------------------------------+-----------------------------------------------------------------------------------------------------|
@@ -196,7 +228,7 @@
 | [[https://kubernetes.io/docs/concepts/policy/pod-security-policy/][Check user privilege]]          | =kubectl --as=system:serviceaccount:ns-denny:test-privileged-sa -n ns-denny auth can-i use pods/list= |
 | [[https://kubernetes.io/docs/concepts/policy/pod-security-policy/][Check user privilege]]          | =kubectl auth can-i use pods/list=                                                                  |
 
-** Network
+* Network
 
 | Name                              | Command                                                  |
 |-----------------------------------+----------------------------------------------------------|
@@ -208,13 +240,13 @@
 | Get ingress controller             | =kubectl get ingress=                                     |
 | Get ingress classes                | =kubectl get ingressclasses=                             |  
 
-** Patch
+* Patch
 
 | Name                          | Summary                                                             |
 |-------------------------------+---------------------------------------------------------------------|
 | Patch service to loadbalancer | kubectl patch svc $svc_name -p '{"spec": {"type": "LoadBalancer"}}' |
 
-** Extenstions
+* Extensions
 
 | Name                                    | Summary                    |
 |-----------------------------------------+----------------------------|
@@ -223,8 +255,8 @@
 | List all CRD                            | =kubectl get crd=          |
 | List storageclass                       | =kubectl get storageclass= |
 
-** Components & Services
-*** Services on Master Nodes
+* Components & Services
+** Services on Master Nodes
 
 | Name                     | Summary                                                                                    |
 |--------------------------+--------------------------------------------------------------------------------------------|
@@ -234,7 +266,7 @@
 | [[https://github.com/kubernetes/kubernetes/tree/master/cmd/kube-controller-manager][kube-controller-manager]]  | Reconcile the states. node/replication/endpoints/token controller and service account, etc |
 | cloud-controller-manager |                                                                                            |
 
-*** Services on Worker Nodes
+** Services on Worker Nodes
 
 | Name              | Summary                                                                                      |
 |-------------------+----------------------------------------------------------------------------------------------|
@@ -242,7 +274,7 @@
 | [[https://github.com/kubernetes/kubernetes/tree/master/cmd/kube-proxy][kube-proxy]]        | Manage network connectivity to the containers. e.g, iptable, ipvs                            |
 | [[https://github.com/docker/engine][Container Runtime]] | Kubernetes supported runtimes: dockerd, cri-o, runc and any [[https://github.com/opencontainers/runtime-spec][OCI runtime-spec]] implementation. |
 
-*** Addons: pods and services that implement cluster features
+** Addons: pods and services that implement cluster features
 
 | Name                          | Summary                                                                   |
 |-------------------------------+---------------------------------------------------------------------------|
@@ -251,7 +283,7 @@
 | Container Resource Monitoring | collect, store and serve container metrics                                |
 | Cluster-level Logging         | save container logs to a central log store with search/browsing interface |
 
-*** Tools
+** Tools
 
 | Name                  | Summary                                                     |
 |-----------------------+-------------------------------------------------------------|
@@ -260,7 +292,7 @@
 | [[https://kubernetes.io/docs/reference/setup-tools/kubefed/kubefed/][kubefed]]               | the command line to control a Kubernetes Cluster Federation |
 | Kubernetes Components | [[https://kubernetes.io/docs/concepts/overview/components/][Link: Kubernetes Components]]                                 |
 
-** Debug Init Containers
+* Debug Init Containers
 
 https://kubernetes.io/docs/tasks/debug-application-cluster/debug-init-containers/
 
@@ -274,7 +306,7 @@ https://www.krenger.ch/blog/crashloopbackoff-and-how-to-fix-it/
 | Pending                    | The Pod has not yet begun executing Init Containers.        |
 | PodInitializing or Running | The Pod has already finished executing Init Containers.     |
 
-** More Resources
+* More Resources
 
 https://kubernetes.io/docs/reference/kubectl/cheatsheet/
 
@@ -288,7 +320,7 @@ https://lzone.de/cheat-sheet/kubernetes
 
 https://jimmysong.io/cheatsheets/kubernetes-tricks
 
-*** Useful Links
+** Useful Links
 
 [[https://www.youtube.com/watch?v=PH-2FfFD2PU][Kubernetes in 5 mins]]
 
